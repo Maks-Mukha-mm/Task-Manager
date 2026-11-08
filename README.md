@@ -8,6 +8,8 @@ A RESTful API for task management built with Spring Boot and PostgreSQL.
 - **Spring Boot 3.4.4**
 - **Spring Data JPA / Hibernate**
 - **PostgreSQL**
+- **Flyway** (database migrations)
+- **Docker / Docker Compose**
 - **Maven**
 
 ## Features
@@ -33,37 +35,42 @@ src/main/java/com/taskmanager/
 
 ## Getting Started
 
-### Prerequisites
+### Option 1 — Docker (recommended)
 
-- Java 25+
-- Maven 3.9+
-- PostgreSQL 18
+The only requirement is [Docker](https://docs.docker.com/get-docker/). One command starts PostgreSQL and the application:
 
-### Database Setup
+```bash
+docker compose up --build
+```
 
-Create a PostgreSQL database:
+The API will be available at `http://localhost:8080`. Stop everything with `docker compose down` (add `-v` to also delete the database volume).
 
-```sql
-CREATE DATABASE taskmanager;
+To change the database credentials, copy `.env.example` to `.env` and edit it.
+
+### Option 2 — Run locally
+
+Prerequisites: Java 25+, Maven 3.9+, PostgreSQL. Start only the database in Docker and the app from your IDE or Maven:
+
+```bash
+docker compose up -d db
+mvn spring-boot:run
 ```
 
 ### Configuration
 
-Update `src/main/resources/application.properties` with your credentials:
+All settings come from environment variables, with defaults for local development:
 
-```properties
-spring.datasource.url=jdbc:postgresql://localhost:5432/taskmanager
-spring.datasource.username=postgres
-spring.datasource.password=your_password
-```
+| Variable | Default | Description |
+|----------|---------|-------------|
+| `DB_URL` | `jdbc:postgresql://localhost:5432/taskmanager` | JDBC URL |
+| `DB_USERNAME` | `postgres` | Database user |
+| `DB_PASSWORD` | `postgres` | Database password |
+| `PORT` | `8080` | HTTP port |
+| `SHOW_SQL` | `false` | Log SQL statements |
 
-### Run the Application
+### Database migrations
 
-```bash
-mvn spring-boot:run
-```
-
-The API will be available at `http://localhost:8080`
+The schema is managed by [Flyway](https://flywaydb.org/). Migrations live in `src/main/resources/db/migration` and run automatically on startup; Hibernate only validates that entities match the schema (`ddl-auto=validate`).
 
 ## API Endpoints
 
